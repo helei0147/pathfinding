@@ -13,9 +13,10 @@ def get_symmetry(centre_row,centre_col,temp_row,temp_col):
 
 
 def trial_process(matrix,matrix_potential,row,col,trial_index):
+    # trial_process with rect effection
     src_row=trial_index/col
     src_col=trial_index%col
-    max_dis=3
+    max_dis=2
     step=PASSED_EFFECT/max_dis
     matrix_potential[src_row][src_col]=MAX_COST
     temp_effect=PASSED_EFFECT

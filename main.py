@@ -17,6 +17,68 @@ SOURCE_COLOR=(0,255,255)
 TARGET_COLOR=(0,0,255)
 TRIAL_COLOR=(0,255,0)
 FPS=120
+def return_index(row,col,row_index,col_index):
+    return row_index*col+col_index
+def connectivity_detection_overflow_version(matrix,src_index,tar_index):
+    row=len(matrix)
+    col=len(matrix[0])
+    if src_index==tar_index:
+        return True
+    s_row=src_index/col
+    s_col=src_index%col
+    t_row=tar_index/col
+    t_col=tar_index%col
+    checked_matrix=[]
+    for i in range(row):
+        temp_buffer=[]
+        for j in range(col):
+            temp_buffer.append(False)
+        checked_matrix.append(temp_buffer)
+    result_list=[]
+    checked_matrix[s_row][s_col]=True
+    if potential_field.in_range(row,col,s_row-1,s_col):
+        s_index=return_index(row,col,s_row-1,s_col)
+        if checked_matrix[s_row-1][s_col]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row-1,s_col+1):
+        s_index=return_index(row,col,s_row-1,s_col+1)
+        if checked_matrix[s_row-1][s_col+1]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row,s_col+1):
+        s_index=return_index(row,col,s_row,s_col+1)
+        if checked_matrix[s_row][s_col+1]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row+1,s_col+1):
+        s_index=return_index(row,col,s_row+1,s_col+1)
+        if checked_matrix[s_row+1][s_col+1]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row+1,s_col):
+        s_index=return_index(row,col,s_row+1,s_col)
+        if checked_matrix[s_row+1][s_col]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row+1,s_col-1):
+        s_index=return_index(row,col,s_row+1,s_col-1)
+        if checked_matrix[s_row+1][s_col-1]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row,s_col-1):
+        s_index=return_index(row,col,s_row,s_col-1)
+        if checked_matrix[s_row][s_col-1]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+    if potential_field.in_range(row,col,s_row-1,s_col-1):
+        s_index=return_index(row,col,s_row-1,s_col-1)
+        if checked_matrix[s_row-1][s_col-1]==False:
+            if connectivity_detection(matrix,s_index,tar_index):
+                return True
+
+    return False
+
 def main():
     screen=pygame.display.set_mode((WIN_WIDTH,WIN_HEIGHT))
     # about read tile information from file
@@ -138,7 +200,7 @@ def main():
             if tar_index==-1 or src_index==-1:
                 pass
             else:
-
+                print 'over'
                 potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
                 #potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
                 clannad=src_index
@@ -148,7 +210,7 @@ def main():
                     matrix,src_index=potential_field.potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index)
                     display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
                     pygame.display.flip()
-                    for i in range(FPS/20):
+                    for i in range(FPS/30):
                         clock.tick(FPS)
                 src_index=clannad
 
