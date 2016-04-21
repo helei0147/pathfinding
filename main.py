@@ -1,6 +1,7 @@
 import pygame,os,sys,math,string
 import dijkstra,display,potential_field,file_operation
 from pygame.locals import *
+from astar import *
 MAX_COST=10086
 BLOCK=3
 FLAT=0
@@ -190,12 +191,33 @@ def main():
             matrix[tile_y][tile_x]=TARGET
             tar_index=tile_y*col+tile_x
         if keystate[K_RETURN]:
+            graph=GridWithWeights(row,col)
+            for i in range(row):
+                for j in range(col):
+                    if matrix[i][j]==BLOCK:
+                        graph.walls.append((i,j))
+            start=(src_index/col,src_index%col)
+            final=(tar_index/col,tar_index%col)
+            print start,final
+            came_from, cost_so_far=a_star_search(graph,start,final)
+            print came_from[final]
+            path=reconstruct_path(came_from,start,final)
+            print 'cost:',cost_so_far[final]
+            for i in path:
+                temp_row=i[0]
+                temp_col=i[1]
+                matrix[temp_row][temp_col]=TRIAL
+        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+        pygame.display.flip()
+
             # dijkstra code
-            '''
+'''
             link_data=dijkstra.build_link(matrix,row,col)
             trial=dijkstra.dijkstra(link_data,row,col,src_index,tar_index)
             display.display_path(screen,matrix,row,col,trial)
-            '''
+'''
+# potential field code block
+'''
             #file_operation.write_in_file('matrix_data.txt',matrix,row,col)
             if tar_index==-1 or src_index==-1:
                 pass
@@ -213,10 +235,7 @@ def main():
                     for i in range(FPS/30):
                         clock.tick(FPS)
                 src_index=clannad
+ '''
 
-
-
-        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-        pygame.display.flip()
 
 if __name__=='__main__': main()
