@@ -82,7 +82,7 @@ def block_process(matrix,matrix_3d,row,col,src_index):
     # get a diamond effect field
     src_row=src_index/col
     src_col=src_index%col
-    max_dis=1
+    max_dis=2
     step=BLOCK_EFFECT/max_dis
     temp_effect=BLOCK_EFFECT
     matrix_3d[src_row][src_col].append(MAX_COST)
@@ -108,7 +108,7 @@ def block_process(matrix,matrix_3d,row,col,src_index):
         temp_effect=BLOCK_EFFECT-BLOCK_EFFECT/(max_dis*max_dis)*i*i
 
 def target_process(matrix,matrix_potential,row,col,src_index):
-    # on the fondation of block_process
+    # on the foundation of block_process
     # if there is a path approching the target
     # that node has a smaller value
     src_row=src_index/col
@@ -193,12 +193,9 @@ def potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index):
                     min_row=temp_row
                     min_col=temp_col
         trial_process(matrix,potential_matrix,row,col,min_row*col+min_col)
-        #print cur_row,cur_col,min_row,min_col
-        #print potential_matrix[cur_row][cur_col],potential_matrix[min_row][min_col]
         cur_row=min_row
         cur_col=min_col
         matrix[min_row][min_col]=TRIAL
-        #print cur_row,cur_col
     return matrix
 
 def potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index):

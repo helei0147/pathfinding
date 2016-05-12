@@ -81,6 +81,7 @@ def connectivity_detection_overflow_version(matrix,src_index,tar_index):
     return False
 
 def main():
+    pygame.init()
     screen=pygame.display.set_mode((WIN_WIDTH,WIN_HEIGHT))
     # about read tile information from file
     '''
@@ -123,6 +124,12 @@ def main():
     clock=pygame.time.Clock()
     src_index=-1
     tar_index=-1
+    pathfinding_mode=['A* Algorithm','Potential Field Algorithm','Combination']
+    current_mode_index=0
+    if pygame.font:
+        myfont=pygame.font.Font(None,36)
+    unchanged_src=0
+    unchanged_tar=1
     while 1:
         clock.tick(FPS)
         events=pygame.event.get()
@@ -131,8 +138,6 @@ def main():
             if event.type==QUIT or (event.type==KEYDOWN\
                     and event.key == K_ESCAPE):
                 break
-
-
 
         keystate=pygame.key.get_pressed()
         if keystate[K_ESCAPE]:
@@ -161,6 +166,15 @@ def main():
                     for j in range(bianchang):
                         if potential_field.in_range(row,col,temp_row+i,temp_col+j):
                             matrix[temp_row+i][temp_col+j]=BLOCK
+        if keystate[K_c]:
+            current_mode_index+=1
+            current_mode_index=current_mode_index%len(pathfinding_mode)
+            for i in range(row):
+                for j in range(col):
+                    if matrix[i][j]==TRIAL:
+                        matrix[i][j]=FLAT
+            matrix[unchanged_src//col][unchanged_src%col]=SOURCE
+            matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
         if keystate[K_e]:
             x,y=pygame.mouse.get_pos()
             for i in range(row):
@@ -181,6 +195,7 @@ def main():
                         matrix[i][j]=FLAT
             matrix[tile_y][tile_x]=SOURCE
             src_index=tile_y*col+tile_x
+            unchanged_src=src_index
         if keystate[K_t]:#keep only one target
             x,y=pygame.mouse.get_pos()
             tile_x,tile_y= display.get_tile_xy(start_x,start_y,row,col,tile_length,x,y)
@@ -190,52 +205,131 @@ def main():
                         matrix[i][j]=FLAT
             matrix[tile_y][tile_x]=TARGET
             tar_index=tile_y*col+tile_x
+            unchanged_tar=tar_index
         if keystate[K_RETURN]:
-            graph=GridWithWeights(row,col)
-            for i in range(row):
-                for j in range(col):
-                    if matrix[i][j]==BLOCK:
-                        graph.walls.append((i,j))
-            start=(src_index/col,src_index%col)
-            final=(tar_index/col,tar_index%col)
-            print start,final
-            came_from, cost_so_far=a_star_search(graph,start,final)
-            print came_from[final]
-            path=reconstruct_path(came_from,start,final)
-            print 'cost:',cost_so_far[final]
-            for i in path:
-                temp_row=i[0]
-                temp_col=i[1]
-                matrix[temp_row][temp_col]=TRIAL
+            if current_mode_index==0:
+                # A Star
+                graph=GridWithWeights(row,col)
+                for i in range(row):
+                    for j in range(col):
+                        if matrix[i][j]==BLOCK:
+                            graph.walls.append((i,j))
+                start=(src_index/col,src_index%col)
+                final=(tar_index/col,tar_index%col)
+                print start,final
+                came_from, cost_so_far=a_star_search(graph,start,final)
+                print came_from[final]
+                path=reconstruct_path(came_from,start,final)
+                print 'cost:',cost_so_far[final]
+                for i in path:
+                    temp_row=i[0]
+                    temp_col=i[1]
+                    matrix[temp_row][temp_col]=TRIAL
+                matrix[unchanged_src//col][unchanged_src%col]=SOURCE
+                matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
+            elif current_mode_index==1:
+                # Potential Field Algorithm
+                if tar_index==-1 or src_index==-1:
+                    pass
+                else:
+                    print 'over'
+                    potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
+                    matrix=potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
+                    display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+# #--------------------------------------------------
+#                     clannad=src_index
+#                     while src_index!=tar_index:
+#                         #print src_index
+#                         #raw_input()
+#                         matrix,src_index=potential_field.potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index)
+#                         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+#                         pygame.display.flip()
+#                         clock.tick(FPS)
+#                     src_index=clannad
+# #--------------------------------------------------
+                matrix[unchanged_src//col][unchanged_src%col]=SOURCE
+                matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
+            elif current_mode_index==2:
+                # combination
+                potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
+                matrix=combination(matrix,potential_matrix,row,col,src_index,tar_index,20)
+                matrix[unchanged_src//col][unchanged_src%col]=SOURCE
+                matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
+        mode_image,mode_rect=render_string(pathfinding_mode[current_mode_index],myfont,(0,255,0),(WIN_WIDTH/2,20))
+        screen.fill((0,0,0))
+        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+        screen.blit(mode_image,mode_rect)
+        pygame.display.flip()
+
+# -------------------------------------------
+#
+#             # dijkstra code
+#
+#             link_data=dijkstra.build_link(matrix,row,col)
+#             trial=dijkstra.dijkstra(link_data,row,col,src_index,tar_index)
+#             display.display_path(screen,matrix,row,col,trial)
+#         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+#         pygame.display.flip()
+#
+# -------------------------------------------
+
         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
         pygame.display.flip()
 
-            # dijkstra code
-'''
-            link_data=dijkstra.build_link(matrix,row,col)
-            trial=dijkstra.dijkstra(link_data,row,col,src_index,tar_index)
-            display.display_path(screen,matrix,row,col,trial)
-'''
-# potential field code block
-'''
-            #file_operation.write_in_file('matrix_data.txt',matrix,row,col)
-            if tar_index==-1 or src_index==-1:
-                pass
-            else:
-                print 'over'
-                potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
-                #potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
-                clannad=src_index
-                while src_index!=tar_index:
-                    #print src_index
-                    #raw_input()
-                    matrix,src_index=potential_field.potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index)
-                    display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-                    pygame.display.flip()
-                    for i in range(FPS/30):
-                        clock.tick(FPS)
-                src_index=clannad
- '''
+def render_string(current_string,font,color,rect_center=(0,0)):
+    text=font.render(current_string,1,color)
+    textpos=text.get_rect(center=rect_center)
+    return text,textpos
 
+
+def combination(matrix,potential_matrix,row,col,src_index,tar_index,max_manhattan_distance):
+    src_row=src_index/col
+    src_col=src_index%col
+    tar_row=tar_index/col
+    tar_col=tar_index%col
+    cur_row=src_row
+    cur_col=src_col
+    while cur_row!=tar_row or cur_col!=tar_col:
+        min_potential=MAX_COST
+        min_row=-1
+        min_col=-1
+        for direction in range(8):
+            temp_row,temp_col=dijkstra.get_adjacent_index(row,col,cur_row,cur_col,direction)
+            if potential_field.in_range(row,col,temp_row,temp_col):
+                if potential_matrix[temp_row][temp_col]<min_potential \
+                   and potential_matrix[temp_row][temp_col]<MAX_COST:
+                    min_potential=potential_matrix[temp_row][temp_col]
+                    min_row=temp_row
+                    min_col=temp_col
+        potential_field.trial_process(matrix,potential_matrix,row,col,min_row*col+min_col)
+        cur_row=min_row
+        cur_col=min_col
+        matrix[min_row][min_col]=TRIAL
+        m_distance=cal_manhattan_distance(cur_row*col+cur_col,tar_index,row,col)
+        if m_distance<=max_manhattan_distance:
+            break
+
+    src_index=cur_row*col+cur_col
+    print src_index,tar_index
+    graph=GridWithWeights(row,col)
+    for i in range(row):
+        for j in range(col):
+            if matrix[i][j]==BLOCK:
+                graph.walls.append((i,j))
+    start=(src_index//col,src_index%col)
+    final=(tar_index//col,tar_index%col)
+    came_from,cost_so_far=a_star_search(graph,start,final)
+    path=reconstruct_path(came_from,start,final)
+    for i in path:
+        temp_row=i[0]
+        temp_col=i[1]
+        matrix[temp_row][temp_col]=TRIAL
+    return matrix
+def cal_manhattan_distance(src_index,tar_index,row,col):
+    src_row=src_index/col
+    src_col=src_index%col
+    tar_row=tar_index/col
+    tar_col=tar_index%col
+    return abs(src_row-tar_row)+abs(src_col-tar_col)
 
 if __name__=='__main__': main()
