@@ -158,7 +158,7 @@ def main():
             if matrix[tile_y][tile_x]==SOURCE or matrix[tile_y][tile_x]==TARGET:
                 pass
             else:
-                bianchang=7
+                bianchang=col//15
                 temp_row=tile_y-bianchang/2
                 temp_col=tile_x-bianchang/2
 
@@ -185,7 +185,14 @@ def main():
             if matrix[tile_y][tile_x]==SOURCE or matrix[tile_y][tile_x]==TARGET:
                 pass
             else:
-                matrix[tile_y][tile_x]=FLAT
+                bianchang=col//10
+                temp_row=tile_y-bianchang/2
+                temp_col=tile_x-bianchang/2
+
+                for i in range(bianchang):
+                    for j in range(bianchang):
+                        if potential_field.in_range(row,col,temp_row+i,temp_col+j):
+                            matrix[temp_row+i][temp_col+j]=FLAT
         if keystate[K_s]:#keep only one source
             x,y=pygame.mouse.get_pos()
             tile_x,tile_y=display.get_tile_xy(start_x,start_y,row,col,tile_length,x,y)
@@ -234,25 +241,25 @@ def main():
                 else:
                     print 'over'
                     potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
-                    matrix=potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
-                    display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-# #--------------------------------------------------
-#                     clannad=src_index
-#                     while src_index!=tar_index:
-#                         #print src_index
-#                         #raw_input()
-#                         matrix,src_index=potential_field.potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index)
-#                         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-#                         pygame.display.flip()
-#                         clock.tick(FPS)
-#                     src_index=clannad
-# #--------------------------------------------------
+                    # matrix=potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
+                    # display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+#--------------------------------------------------
+                    clannad=src_index
+                    while src_index!=tar_index:
+                        #print src_index
+                        #raw_input()
+                        matrix,src_index=potential_field.potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index)
+                        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+                        pygame.display.flip()
+                        clock.tick(FPS)
+                    src_index=clannad
+#--------------------------------------------------
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
             elif current_mode_index==2:
                 # combination
                 potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
-                matrix=combination(matrix,potential_matrix,row,col,src_index,tar_index,20)
+                matrix=combination(matrix,potential_matrix,row,col,src_index,tar_index,col//3)
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
         mode_image,mode_rect=render_string(pathfinding_mode[current_mode_index],myfont,(0,255,0),(WIN_WIDTH/2,20))

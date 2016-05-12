@@ -22,7 +22,7 @@ def trial_process(matrix,matrix_potential,row,col,trial_index):
     temp_effect=PASSED_EFFECT
 
     for i in range(1,max_dis):
-        temp_effect=PASSED_EFFECT/(i+2)
+        temp_effect=PASSED_EFFECT/(i+5)
         #print temp_effect
         start_row1=src_row-i
         start_col1=src_col+i
@@ -82,7 +82,7 @@ def block_process(matrix,matrix_3d,row,col,src_index):
     # get a diamond effect field
     src_row=src_index/col
     src_col=src_index%col
-    max_dis=2
+    max_dis=5
     step=BLOCK_EFFECT/max_dis
     temp_effect=BLOCK_EFFECT
     matrix_3d[src_row][src_col].append(MAX_COST)
@@ -111,32 +111,40 @@ def target_process(matrix,matrix_potential,row,col,src_index):
     # on the foundation of block_process
     # if there is a path approching the target
     # that node has a smaller value
+    # src_row=src_index/col
+    # src_col=src_index%col
+    # max_dis=max(row,col)
+    # step=TARGET_EFFECT/max_dis
+    # temp_effect=TARGET_EFFECT
+    # matrix_potential[src_row][src_col]=TARGET_EFFECT*3
+    # for i in range(1,max_dis+1):
+    #     for j in range(i):
+    #         temp_row=src_row+i-j
+    #         temp_col=src_col-j
+    #         if in_range(row,col,temp_row,temp_col):
+    #             matrix_potential[temp_row][temp_col]+=temp_effect
+    #         # and it's symmetry
+    #         sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
+    #         if in_range(row,col,sym_row,sym_col):
+    #             matrix_potential[sym_row][sym_col]+=temp_effect
+    #         temp_row=src_row+j
+    #         temp_col=src_col+i-j
+    #         if in_range(row,col,temp_row,temp_col):
+    #             matrix_potential[temp_row][temp_col]+=temp_effect
+    #         # and it's symmetry
+    #         sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
+    #         if in_range(row,col,sym_row,sym_col):
+    #             matrix_potential[sym_row][sym_col]+=temp_effect
+    #     # can only change the following line to simulate the potential field's effect
+    #     temp_effect=TARGET_EFFECT-TARGET_EFFECT/(max_dis*max_dis)*i*i
     src_row=src_index/col
     src_col=src_index%col
-    max_dis=max(row,col)
-    step=TARGET_EFFECT/max_dis
-    temp_effect=TARGET_EFFECT
-    matrix_potential[src_row][src_col]=TARGET_EFFECT*3
-    for i in range(1,max_dis+1):
-        for j in range(i):
-            temp_row=src_row+i-j
-            temp_col=src_col-j
-            if in_range(row,col,temp_row,temp_col):
-                matrix_potential[temp_row][temp_col]+=temp_effect
-            # and it's symmetry
-            sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
-            if in_range(row,col,sym_row,sym_col):
-                matrix_potential[sym_row][sym_col]+=temp_effect
-            temp_row=src_row+j
-            temp_col=src_col+i-j
-            if in_range(row,col,temp_row,temp_col):
-                matrix_potential[temp_row][temp_col]+=temp_effect
-            # and it's symmetry
-            sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
-            if in_range(row,col,sym_row,sym_col):
-                matrix_potential[sym_row][sym_col]+=temp_effect
-        # can only change the following line to simulate the potential field's effect
-        temp_effect=TARGET_EFFECT-TARGET_EFFECT/(max_dis*max_dis)*i*i
+    matrix_potential[src_row][src_col]=TARGET_EFFECT*5
+    for i in range(row):
+        for j in range(col):
+            dis=((src_row-i)**2+(src_col-j)**2)**0.5
+            if dis!=0:
+                matrix_potential[i][j]+=TARGET_EFFECT/dis
 
 
 def cal_potential_field(matrix,row,col,tar_index):
@@ -220,7 +228,7 @@ def potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index):
                 min_row=temp_row
                 min_col=temp_col
     trial_process(matrix,potential_matrix,row,col,min_row*col+min_col)
-    #print cur_row,cur_col,min_row,min_col
+    print cur_row,cur_col
     #print potential_matrix[cur_row][cur_col],potential_matrix[min_row][min_col]
     cur_row=min_row
     cur_col=min_col

@@ -44,13 +44,13 @@ def get_adjacent_index(row,col,src_row,src_col,direction):
             return temp_row,src_col
     elif direction==2:
         temp_col=src_col+1
-        if temp_col==col:
+        if temp_col>=col:
             return -1,-1
         else:
             return src_row,temp_col
     elif direction==4:
         temp_row=src_row+1
-        if temp_row==row:
+        if temp_row>=row:
             return -1,-1
         else:
             return temp_row,src_col
@@ -63,21 +63,21 @@ def get_adjacent_index(row,col,src_row,src_col,direction):
     elif direction==1:
         temp_col=src_col+1
         temp_row=src_row-1
-        if temp_col==col or temp_row<0:
+        if temp_col>=col or temp_row<0:
             return -1,-1
         else:
             return temp_row,temp_col
     elif direction==3:
         temp_row=src_row+1
         temp_col=src_col+1
-        if temp_col==col or temp_row==row:
+        if temp_col>=col or temp_row>=row:
             return -1,-1
         else:
             return temp_row,temp_col
     elif direction==5:
         temp_row=src_row+1
         temp_col=src_col-1
-        if temp_row==row or temp_col<0:
+        if temp_row>=row or temp_col<0:
             return -1,-1
         else:
             return temp_row,temp_col
