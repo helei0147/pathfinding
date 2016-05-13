@@ -109,11 +109,12 @@ def block_process(matrix,matrix_3d,row,col,src_index):
 def source_process(matrix,matrix_potential,row,col,src_index):
     src_row=src_index//col
     src_col=src_index%col
+    matrix_potential[src_row][src_col]=SOURCE_EFFECT*5
     for i in range(row):
         for j in range(col):
             dis=((src_row-i)**2+(src_col-j)**2)**0.5
             if dis>0 and dis<20:
-                matrix_potential[i][j]+=SOURCE_EFFECT/dis
+                matrix_potential[i][j]+=SOURCE_EFFECT*2/dis
 
 def target_process(matrix,matrix_potential,row,col,src_index):
     # on the foundation of block_process
@@ -152,7 +153,7 @@ def target_process(matrix,matrix_potential,row,col,src_index):
         for j in range(col):
             dis=((src_row-i)**2+(src_col-j)**2)**0.5
             if dis!=0:
-                matrix_potential[i][j]+=TARGET_EFFECT/dis
+                matrix_potential[i][j]+=TARGET_EFFECT*2/dis
 
 
 def cal_potential_field(matrix,row,col,src_index,tar_index):
@@ -230,6 +231,7 @@ def potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index):
         temp_row,temp_col=dijkstra.get_adjacent_index(row,col,cur_row,cur_col,direction)
 
         if in_range(row,col,temp_row,temp_col):
+            print temp_row,temp_col
             #print len(potential_matrix)
             if potential_matrix[temp_row][temp_col]<min_potential \
                and potential_matrix[temp_row][temp_col]<MAX_COST:
@@ -237,7 +239,7 @@ def potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index):
                 min_row=temp_row
                 min_col=temp_col
     trial_process(matrix,potential_matrix,row,col,min_row*col+min_col)
-    print cur_row,cur_col
+    #print cur_row,cur_col
     #print potential_matrix[cur_row][cur_col],potential_matrix[min_row][min_col]
     cur_row=min_row
     cur_col=min_col

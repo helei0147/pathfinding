@@ -81,7 +81,7 @@ def main():
     src_index=-1
     tar_index=-1
     pathfinding_mode=['A* Algorithm','Potential Field Algorithm','Combination']
-    current_mode_index=0
+    current_mode_index=2
     if pygame.font:
         myfont=pygame.font.Font(None,36)
     unchanged_src=0
@@ -169,6 +169,10 @@ def main():
             matrix[tile_y][tile_x]=TARGET
             tar_index=tile_y*col+tile_x
             unchanged_tar=tar_index
+        if keystate[K_d]:
+            potential_matrix=potential_field.cal_potential_field(matrix,row,col,unchanged_src,unchanged_tar)
+            display.display_potential_field(screen,potential_matrix,row,col,start_x,start_y,tile_length)
+
         if keystate[K_RETURN]:
             if current_mode_index==0:
                 # A Star
@@ -214,17 +218,19 @@ def main():
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
             elif current_mode_index==2:
                 # combination
-                print unchanged_src,unchanged_tar
                 potential_matrix=potential_field.cal_potential_field(matrix,row,col,unchanged_src,unchanged_tar)
                 matrix=combination(matrix,potential_matrix,row,col,unchanged_src,unchanged_tar,col//3)
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
+                display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
                 print 'combination over'
         mode_image,mode_rect=render_string(pathfinding_mode[current_mode_index],myfont,(0,255,0),(WIN_WIDTH/2,20))
         screen.fill((0,0,0))
         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
         screen.blit(mode_image,mode_rect)
         pygame.display.flip()
+#        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
+
 
 # -------------------------------------------
 #
@@ -237,9 +243,6 @@ def main():
 #         pygame.display.flip()
 #
 # -------------------------------------------
-
-        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-        pygame.display.flip()
 
 def render_string(current_string,font,color,rect_center=(0,0)):
     text=font.render(current_string,1,color)

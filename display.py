@@ -1,20 +1,6 @@
 import sys,math,pygame,dijkstra
 from pygame.locals import *
-MAX_COST=10086
-BLOCK=3
-FLAT=0
-SOURCE=1
-TARGET=2
-TRIAL=4
-WIN_WIDTH=1024
-WIN_HEIGHT=768
-DEFAULT_FRAME_WIDTH=50
-BLACK=(0,0,0)
-BLOCK_COLOR=(128,128,128)
-FLAT_COLOR=(255,255,255)
-SOURCE_COLOR=(0,255,255)
-TARGET_COLOR=(0,0,255)
-TRIAL_COLOR=(0,255,0)
+from constants import *
 def display_matrix(screen,matrix,row,col,start_x,start_y,length):
     for i in range(row):
         for j in range(col):
@@ -30,6 +16,15 @@ def display_matrix(screen,matrix,row,col,start_x,start_y,length):
                 color=TARGET_COLOR
             elif(matrix[i][j]==TRIAL):
                 color=TRIAL_COLOR
+            pygame.draw.rect(screen,color,[start_x+j*length,start_y+i*length,length-2,length-2])
+
+def display_potential_field(screen,potential_matrix,row,col,start_x,start_y,length):
+    for i in range(row):
+        for j in range(col):
+            pygame.draw.rect(screen,BLACK,[start_x+j*length,start_y+i*length,length-1,length-1],2)
+            percent=potential_matrix[i][j]/MAX_COST
+            color=(int(percent*255),int(percent*255),int(percent*255))
+            print color
             pygame.draw.rect(screen,color,[start_x+j*length,start_y+i*length,length-2,length-2])
 
 
