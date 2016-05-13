@@ -2,21 +2,7 @@ import pygame,os,sys,math,string
 import dijkstra,display,potential_field,file_operation
 from pygame.locals import *
 from astar import *
-MAX_COST=10086
-BLOCK=3
-FLAT=0
-SOURCE=1
-TARGET=2
-TRIAL=4
-WIN_WIDTH=1024
-WIN_HEIGHT=768
-DEFAULT_FRAME_WIDTH=50
-BLACK=(0,0,0)
-BLOCK_COLOR=(128,128,128)
-FLAT_COLOR=(255,255,255)
-SOURCE_COLOR=(0,255,255)
-TARGET_COLOR=(0,0,255)
-TRIAL_COLOR=(0,255,0)
+from constants import *
 FPS=120
 def return_index(row,col,row_index,col_index):
     return row_index*col+col_index
@@ -83,36 +69,6 @@ def connectivity_detection_overflow_version(matrix,src_index,tar_index):
 def main():
     pygame.init()
     screen=pygame.display.set_mode((WIN_WIDTH,WIN_HEIGHT))
-    # about read tile information from file
-    '''
-    infile=open('readin.txt')
-    row,col=[int(i) for i in infile.readline().split()]
-    matrix=[]
-    for i in range(row):
-        matrix.append([int(part) for part in infile.readline().split()])
-
-    tar_index=-1
-    src_index=-1
-    for i in range(row):
-        for j in range(col):
-            if(matrix[i][j]==TARGET):
-                tar_index=i*col+j
-            elif(matrix[i][j]==SOURCE):
-                src_index=i*col+j
-    '''
-
-    # input manage
-    '''
-    row=input('Please enter the row number:')
-    col=input('Please enter the col number:')
-    matrix=[]
-    trial=[]
-    for i in range(row):
-        temp_list=[]
-        for j in range(col):
-            temp_list.append(FLAT)
-        matrix.append(temp_list)
-    '''
     trial=[]
     matrix,row,col=file_operation.read_in_file('matrix_data.txt')
 
@@ -240,7 +196,7 @@ def main():
                     pass
                 else:
                     print 'over'
-                    potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
+                    potential_matrix=potential_field.cal_potential_field(matrix,row,col,unchanged_src,unchanged_tar)
                     # matrix=potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
                     # display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
 #--------------------------------------------------
@@ -258,10 +214,12 @@ def main():
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
             elif current_mode_index==2:
                 # combination
-                potential_matrix=potential_field.cal_potential_field(matrix,row,col,tar_index)
-                matrix=combination(matrix,potential_matrix,row,col,src_index,tar_index,col//3)
+                print unchanged_src,unchanged_tar
+                potential_matrix=potential_field.cal_potential_field(matrix,row,col,unchanged_src,unchanged_tar)
+                matrix=combination(matrix,potential_matrix,row,col,unchanged_src,unchanged_tar,col//3)
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
+                print 'combination over'
         mode_image,mode_rect=render_string(pathfinding_mode[current_mode_index],myfont,(0,255,0),(WIN_WIDTH/2,20))
         screen.fill((0,0,0))
         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
@@ -294,23 +252,28 @@ def combination(matrix,potential_matrix,row,col,src_index,tar_index,max_manhatta
     src_col=src_index%col
     tar_row=tar_index/col
     tar_col=tar_index%col
+    print src_row,src_col,tar_row,tar_col
     cur_row=src_row
     cur_col=src_col
+    print cur_row,cur_col
     while cur_row!=tar_row or cur_col!=tar_col:
         min_potential=MAX_COST
         min_row=-1
         min_col=-1
         for direction in range(8):
             temp_row,temp_col=dijkstra.get_adjacent_index(row,col,cur_row,cur_col,direction)
+
             if potential_field.in_range(row,col,temp_row,temp_col):
-                if potential_matrix[temp_row][temp_col]<min_potential \
-                   and potential_matrix[temp_row][temp_col]<MAX_COST:
+                print potential_matrix[temp_row][temp_col],
+                if potential_matrix[temp_row][temp_col]<min_potential:
+                    print temp_row,temp_col,
                     min_potential=potential_matrix[temp_row][temp_col]
                     min_row=temp_row
                     min_col=temp_col
         potential_field.trial_process(matrix,potential_matrix,row,col,min_row*col+min_col)
         cur_row=min_row
         cur_col=min_col
+        print 'min(',min_row,min_col,')'
         matrix[min_row][min_col]=TRIAL
         m_distance=cal_manhattan_distance(cur_row*col+cur_col,tar_index,row,col)
         if m_distance<=max_manhattan_distance:

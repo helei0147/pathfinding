@@ -106,6 +106,14 @@ def block_process(matrix,matrix_3d,row,col,src_index):
                 matrix_3d[sym_row][sym_col].append(temp_effect)
         #can only change the following line to simulate the potential field's effect
         temp_effect=BLOCK_EFFECT-BLOCK_EFFECT/(max_dis*max_dis)*i*i
+def source_process(matrix,matrix_potential,row,col,src_index):
+    src_row=src_index//col
+    src_col=src_index%col
+    for i in range(row):
+        for j in range(col):
+            dis=((src_row-i)**2+(src_col-j)**2)**0.5
+            if dis>0 and dis<20:
+                matrix_potential[i][j]+=SOURCE_EFFECT/dis
 
 def target_process(matrix,matrix_potential,row,col,src_index):
     # on the foundation of block_process
@@ -147,7 +155,7 @@ def target_process(matrix,matrix_potential,row,col,src_index):
                 matrix_potential[i][j]+=TARGET_EFFECT/dis
 
 
-def cal_potential_field(matrix,row,col,tar_index):
+def cal_potential_field(matrix,row,col,src_index,tar_index):
     matrix_3d=[]
     for i in range(row):
         temp_list=[]
@@ -178,6 +186,7 @@ def cal_potential_field(matrix,row,col,tar_index):
     # process the target
     # target has a bigger effect domain
     target_process(matrix,matrix_potential,row,col,tar_index)
+    source_process(matrix,matrix_potential,row,col,src_index)
     # pre-process complete
     return matrix_potential
 
