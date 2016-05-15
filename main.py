@@ -183,11 +183,8 @@ def main():
                             graph.walls.append((i,j))
                 start=(src_index/col,src_index%col)
                 final=(tar_index/col,tar_index%col)
-                print start,final
                 came_from, cost_so_far=a_star_search(graph,start,final)
-                print came_from[final]
                 path=reconstruct_path(came_from,start,final)
-                print 'cost:',cost_so_far[final]
                 for i in path:
                     temp_row=i[0]
                     temp_col=i[1]
