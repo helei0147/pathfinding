@@ -196,15 +196,11 @@ def main():
                 if tar_index==-1 or src_index==-1:
                     pass
                 else:
-                    print 'over'
-                    potential_matrix=potential_field.cal_potential_field(matrix,row,col,unchanged_src,unchanged_tar)
                     # matrix=potential_field.potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index)
                     # display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-#--------------------------------------------------
+                    potential_matrix=potential_field.cal_potential_field(matrix,unchanged_src,unchanged_tar)
                     clannad=src_index
                     while src_index!=tar_index:
-                        #print src_index
-                        #raw_input()
                         matrix,src_index=potential_field.potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index)
                         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
                         pygame.display.flip()
@@ -215,8 +211,8 @@ def main():
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
             elif current_mode_index==2:
                 # combination
-                potential_matrix=potential_field.cal_potential_field(matrix,row,col,unchanged_src,unchanged_tar)
-                matrix=combination(matrix,potential_matrix,row,col,unchanged_src,unchanged_tar,col//3)
+                potential_matrix=potential_field.cal_potential_field(matrix,unchanged_src,unchanged_tar)
+                matrix=combination(matrix,potential_matrix,unchanged_src,unchanged_tar,col//3)
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
                 display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
@@ -247,7 +243,9 @@ def render_string(current_string,font,color,rect_center=(0,0)):
     return text,textpos
 
 
-def combination(matrix,potential_matrix,row,col,src_index,tar_index,max_manhattan_distance):
+def combination(matrix,potential_matrix,src_index,tar_index,max_manhattan_distance):
+    row=len(matrix)
+    col=len(matrix[0])
     src_row=src_index/col
     src_col=src_index%col
     tar_row=tar_index/col

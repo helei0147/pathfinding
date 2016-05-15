@@ -155,8 +155,9 @@ def target_process(matrix,matrix_potential,row,col,src_index):
             if dis!=0:
                 matrix_potential[i][j]+=TARGET_EFFECT*2/dis
 
-
-def cal_potential_field(matrix,row,col,src_index,tar_index):
+def cal_block_field(matrix,src_index,tar_index):
+    row=len(matrix)
+    col=len(matrix[0])
     matrix_3d=[]
     for i in range(row):
         temp_list=[]
@@ -184,14 +185,50 @@ def cal_potential_field(matrix,row,col,src_index,tar_index):
                 max_effect=max(matrix_3d[i][j])
             temp_list.append(max_effect)
         matrix_potential.append(temp_list)
+    return matrix_potential
+def cal_changable_field(matrix,src_index,tar_index):
+    row=len(matrix)
+    col=len(matrix[0])
+    changable_matrix_potential=[]
+    for i in range(row):
+        temp_buffer=[]
+        for j in range(col):
+            temp_buffer.append(0)
+        changable_matrix_potential.append(temp_buffer)
+    target_process(matrix,changable_matrix_potential,row,col,tar_index)
+    source_process(matrix,changable_matrix_potential,row,col,src_index)
+    return changable_matrix_potential
+def cal_potential_field(matrix,src_index,tar_index):
     # process the target
     # target has a bigger effect domain
-    target_process(matrix,matrix_potential,row,col,tar_index)
-    source_process(matrix,matrix_potential,row,col,src_index)
+    # calculate all the things
+    row=len(matrix)
+    col=len(matrix[0])
+    block_matrix=cal_block_field(matrix,src_index,tar_index)
+    changable_matrix=cal_changable_field(matrix,src_index,tar_index)
+    potential_field=[]
+    for i in range(row):
+        temp_buffer=[]
+        for j in range(col):
+            temp_buffer.append(block_matrix[i][j]+changable_matrix[i][j])
+        potential_field.append(temp_buffer)
+    return potential_field
     # pre-process complete
-    return matrix_potential
-
-def potential_field_path(matrix,potential_matrix,row,col,src_index,tar_index):
+def update_total_potential(block_potential,matrix,src_index,tar_index):
+    # we have a potential field of blocks, update changable things
+    row=len(matrix)
+    col=len(matrix[0])
+    changable_potential=cal_changable_field(matrix,src_index,tar_index)
+    potential_field=[]
+    for i in range(row):
+        temp_buffer=[]
+        for j in range(col):
+            temp_buffer.append(block_matrix[i][j]+changable_matrix[i][j])
+        potential_field.append(temp_buffer)
+    return potential_field
+def potential_field_path(matrix,potential_matrix,src_index,tar_index):
+    row=len(matrix)
+    col=len(matrix[0])
     src_row=src_index/col
     src_col=src_index%col
     tar_row=tar_index/col
