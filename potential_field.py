@@ -23,7 +23,6 @@ def trial_process(matrix,matrix_potential,row,col,trial_index):
 
     for i in range(1,max_dis):
         temp_effect=PASSED_EFFECT/(i+5)
-        #print temp_effect
         start_row1=src_row-i
         start_col1=src_col+i
         for j in range(i*2):
@@ -52,28 +51,6 @@ def trial_process(matrix,matrix_potential,row,col,trial_index):
             temp_col=start_col4+j
             if in_range(row,col,temp_row,temp_col):
                 matrix_potential[temp_row][temp_col]+=temp_effect
-
-'''
-    for i in range(1,max_dis+1):
-        for j in range(i):
-            temp_row=src_row+i-j
-            temp_col=src_col-j
-            if in_range(row,col,temp_row,temp_col):
-                matrix_potential[temp_row][temp_col]+=temp_effect
-            # and it's symmetry
-            sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
-            if in_range(row,col,sym_row,sym_col):
-                matrix_potential[sym_row][sym_col]+=temp_effect
-            temp_row=src_row+j
-            temp_col=src_col+i-j
-            if in_range(row,col,temp_row,temp_col):
-                matrix_potential[temp_row][temp_col]+=temp_effect
-            # and it's symmetry
-            sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
-            if in_range(row,col,sym_row,sym_col):
-                matrix_potential[sym_row][sym_col]+=temp_effect
-'''
-
 
 def block_process(matrix,matrix_3d,row,col,src_index):
     # Let's think about how a block affect other tiles
@@ -117,35 +94,6 @@ def source_process(matrix,matrix_potential,row,col,src_index):
                 matrix_potential[i][j]+=SOURCE_EFFECT*2/dis
 
 def target_process(matrix,matrix_potential,row,col,src_index):
-    # on the foundation of block_process
-    # if there is a path approching the target
-    # that node has a smaller value
-    # src_row=src_index/col
-    # src_col=src_index%col
-    # max_dis=max(row,col)
-    # step=TARGET_EFFECT/max_dis
-    # temp_effect=TARGET_EFFECT
-    # matrix_potential[src_row][src_col]=TARGET_EFFECT*3
-    # for i in range(1,max_dis+1):
-    #     for j in range(i):
-    #         temp_row=src_row+i-j
-    #         temp_col=src_col-j
-    #         if in_range(row,col,temp_row,temp_col):
-    #             matrix_potential[temp_row][temp_col]+=temp_effect
-    #         # and it's symmetry
-    #         sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
-    #         if in_range(row,col,sym_row,sym_col):
-    #             matrix_potential[sym_row][sym_col]+=temp_effect
-    #         temp_row=src_row+j
-    #         temp_col=src_col+i-j
-    #         if in_range(row,col,temp_row,temp_col):
-    #             matrix_potential[temp_row][temp_col]+=temp_effect
-    #         # and it's symmetry
-    #         sym_row,sym_col=get_symmetry(src_row,src_col,temp_row,temp_col)
-    #         if in_range(row,col,sym_row,sym_col):
-    #             matrix_potential[sym_row][sym_col]+=temp_effect
-    #     # can only change the following line to simulate the potential field's effect
-    #     temp_effect=TARGET_EFFECT-TARGET_EFFECT/(max_dis*max_dis)*i*i
     src_row=src_index/col
     src_col=src_index%col
     matrix_potential[src_row][src_col]=TARGET_EFFECT*5
@@ -269,15 +217,12 @@ def potential_field_step(matrix,potential_matrix,row,col,src_index,tar_index):
 
         if in_range(row,col,temp_row,temp_col):
             print temp_row,temp_col
-            #print len(potential_matrix)
             if potential_matrix[temp_row][temp_col]<min_potential \
                and potential_matrix[temp_row][temp_col]<MAX_COST:
                 min_potential=potential_matrix[temp_row][temp_col]
                 min_row=temp_row
                 min_col=temp_col
     trial_process(matrix,potential_matrix,row,col,min_row*col+min_col)
-    #print cur_row,cur_col
-    #print potential_matrix[cur_row][cur_col],potential_matrix[min_row][min_col]
     cur_row=min_row
     cur_col=min_col
     src_index=cur_row*col+cur_col

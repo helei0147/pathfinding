@@ -3,7 +3,7 @@ import dijkstra,display,potential_field,file_operation
 from pygame.locals import *
 from astar import *
 from constants import *
-FPS=120
+FPS=60
 def return_index(row,col,row_index,col_index):
     return row_index*col+col_index
 def connectivity_detection_overflow_version(matrix,src_index,tar_index):
@@ -71,12 +71,7 @@ def main():
     screen=pygame.display.set_mode((WIN_WIDTH,WIN_HEIGHT))
     trial=[]
     matrix,row,col=file_operation.read_in_file('matrix_data.txt')
-
     start_x,start_y,tile_length=display.display_path(screen,matrix,row,col,trial)
-#    dijkstra's code
-#    link_data=dijkstra.build_link(matrix,row,col)
-#    trial=dijkstra.dijkstra(link_data,row,col,src_index,tar_index)
-#    potential_filed code
     clock=pygame.time.Clock()
     src_index=-1
     tar_index=-1
@@ -206,13 +201,12 @@ def main():
                         pygame.display.flip()
                         clock.tick(FPS)
                     src_index=clannad
-#--------------------------------------------------
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
             elif current_mode_index==2:
                 # combination
                 potential_matrix=potential_field.cal_potential_field(matrix,unchanged_src,unchanged_tar)
-                matrix=combination(matrix,potential_matrix,unchanged_src,unchanged_tar,col//3)
+                matrix=combination(matrix,potential_matrix,unchanged_src,unchanged_tar,col//4)
                 matrix[unchanged_src//col][unchanged_src%col]=SOURCE
                 matrix[unchanged_tar//col][unchanged_tar%col]=TARGET
                 display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
@@ -222,20 +216,6 @@ def main():
         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
         screen.blit(mode_image,mode_rect)
         pygame.display.flip()
-#        display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-
-
-# -------------------------------------------
-#
-#             # dijkstra code
-#
-#             link_data=dijkstra.build_link(matrix,row,col)
-#             trial=dijkstra.dijkstra(link_data,row,col,src_index,tar_index)
-#             display.display_path(screen,matrix,row,col,trial)
-#         display.display_matrix(screen,matrix,row,col,start_x,start_y,tile_length)
-#         pygame.display.flip()
-#
-# -------------------------------------------
 
 def render_string(current_string,font,color,rect_center=(0,0)):
     text=font.render(current_string,1,color)
